@@ -1,8 +1,8 @@
 {
   "version": 2,
-  "dgSpecHash": "DBNDwk6ZqVw=",
+  "dgSpecHash": "sJ//Ra1LYvo=",
   "success": true,
-  "projectFilePath": "C:\\Users\\misha\\OneDrive\\Desktop\\VaultMM\\server\\VaultMM\\VaultMM.Server\\VaultMM.Server.csproj",
+  "projectFilePath": "C:\\Users\\misha\\Desktop\\VaultMM\\server\\VaultMM\\VaultMM.Server\\VaultMM.Server.csproj",
   "expectedPackageFiles": [
     "C:\\Users\\misha\\.nuget\\packages\\humanizer.core\\2.14.1\\humanizer.core.2.14.1.nupkg.sha512",
     "C:\\Users\\misha\\.nuget\\packages\\microsoft.aspnetcore.openapi\\10.0.12\\microsoft.aspnetcore.openapi.10.0.12.nupkg.sha512",

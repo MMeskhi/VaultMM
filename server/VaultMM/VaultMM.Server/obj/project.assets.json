@@ -2466,11 +2466,11 @@
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "C:\\Users\\misha\\OneDrive\\Desktop\\VaultMM\\server\\VaultMM\\VaultMM.Server\\VaultMM.Server.csproj",
+      "projectUniqueName": "C:\\Users\\misha\\Desktop\\VaultMM\\server\\VaultMM\\VaultMM.Server\\VaultMM.Server.csproj",
       "projectName": "VaultMM.Server",
-      "projectPath": "C:\\Users\\misha\\OneDrive\\Desktop\\VaultMM\\server\\VaultMM\\VaultMM.Server\\VaultMM.Server.csproj",
+      "projectPath": "C:\\Users\\misha\\Desktop\\VaultMM\\server\\VaultMM\\VaultMM.Server\\VaultMM.Server.csproj",
       "packagesPath": "C:\\Users\\misha\\.nuget\\packages\\",
-      "outputPath": "C:\\Users\\misha\\OneDrive\\Desktop\\VaultMM\\server\\VaultMM\\VaultMM.Server\\obj\\",
+      "outputPath": "C:\\Users\\misha\\Desktop\\VaultMM\\server\\VaultMM\\VaultMM.Server\\obj\\",
       "projectStyle": "PackageReference",
       "fallbackFolders": [
         "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
