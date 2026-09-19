@@ -1,0 +1,22 @@
+[
+  {
+    "ContainingType": "VaultMM.Server.Controllers.VaultItemController",
+    "Method": "Get",
+    "RelativePath": "api/VaultItem",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [],
+    "ReturnTypes": [
+      {
+        "Type": "VaultMM.Server.VaultItem",
+        "MediaTypes": [
+          "text/plain",
+          "application/json",
+          "text/json"
+        ],
+        "StatusCode": 200
+      }
+    ]
+  }
+]
