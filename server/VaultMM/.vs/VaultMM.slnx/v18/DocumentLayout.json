@@ -3,8 +3,12 @@
   "WorkspaceRootPath": "C:\\Users\\misha\\OneDrive\\Desktop\\VaultMM\\server\\VaultMM\\",
   "Documents": [
     {
-      "AbsoluteMoniker": "D:0:0:{BAC461E0-BFE3-41F9-9E73-2AAE9D36CDDF}|VaultMM.Server\\VaultMM.Server.csproj|c:\\users\\misha\\onedrive\\desktop\\vaultmm\\server\\vaultmm\\vaultmm.server\\controllers\\vaultitemcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{BAC461E0-BFE3-41F9-9E73-2AAE9D36CDDF}|VaultMM.Server\\VaultMM.Server.csproj|solutionrelative:vaultmm.server\\controllers\\vaultitemcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+      "AbsoluteMoniker": "D:0:0:{3A61C2B3-B283-45CC-F56F-9E9B2F9B0A00}|VaultMM.Server\\VaultMM.Server.csproj|c:\\users\\misha\\onedrive\\desktop\\vaultmm\\server\\vaultmm\\vaultmm.server\\migrations\\20260919123749_initialcreate.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{3A61C2B3-B283-45CC-F56F-9E9B2F9B0A00}|VaultMM.Server\\VaultMM.Server.csproj|solutionrelative:vaultmm.server\\migrations\\20260919123749_initialcreate.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{3A61C2B3-B283-45CC-F56F-9E9B2F9B0A00}|VaultMM.Server\\VaultMM.Server.csproj|c:\\users\\misha\\onedrive\\desktop\\vaultmm\\server\\vaultmm\\vaultmm.server\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{3A61C2B3-B283-45CC-F56F-9E9B2F9B0A00}|VaultMM.Server\\VaultMM.Server.csproj|solutionrelative:vaultmm.server\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     }
   ],
   "DocumentGroupContainers": [
@@ -14,24 +18,37 @@
       "DocumentGroups": [
         {
           "DockedWidth": 200,
-          "SelectedChildIndex": 1,
+          "SelectedChildIndex": 0,
           "Children": [
-            {
-              "$type": "Bookmark",
-              "Name": "ST:0:0:{1c4feeaa-4718-4aa9-859d-94ce25d182ba}"
-            },
             {
               "$type": "Document",
               "DocumentIndex": 0,
-              "Title": "VaultItemController.cs",
-              "DocumentMoniker": "C:\\Users\\misha\\OneDrive\\Desktop\\VaultMM\\server\\VaultMM\\VaultMM.Server\\Controllers\\VaultItemController.cs",
-              "RelativeDocumentMoniker": "VaultMM.Server\\Controllers\\VaultItemController.cs",
-              "ToolTip": "C:\\Users\\misha\\OneDrive\\Desktop\\VaultMM\\server\\VaultMM\\VaultMM.Server\\Controllers\\VaultItemController.cs",
-              "RelativeToolTip": "VaultMM.Server\\Controllers\\VaultItemController.cs",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAABcAAAAAAAAAAAAAAA==",
+              "Title": "20260919123749_InitialCreate.cs",
+              "DocumentMoniker": "C:\\Users\\misha\\OneDrive\\Desktop\\VaultMM\\server\\VaultMM\\VaultMM.Server\\Migrations\\20260919123749_InitialCreate.cs",
+              "RelativeDocumentMoniker": "VaultMM.Server\\Migrations\\20260919123749_InitialCreate.cs",
+              "ToolTip": "C:\\Users\\misha\\OneDrive\\Desktop\\VaultMM\\server\\VaultMM\\VaultMM.Server\\Migrations\\20260919123749_InitialCreate.cs",
+              "RelativeToolTip": "VaultMM.Server\\Migrations\\20260919123749_InitialCreate.cs",
+              "ViewState": "AgIAABYAAAAAAAAAAAAgwAAAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-09-19T11:25:45.994Z",
+              "WhenOpened": "2026-09-19T12:39:49.246Z",
               "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 1,
+              "Title": "Program.cs",
+              "DocumentMoniker": "C:\\Users\\misha\\OneDrive\\Desktop\\VaultMM\\server\\VaultMM\\VaultMM.Server\\Program.cs",
+              "RelativeDocumentMoniker": "VaultMM.Server\\Program.cs",
+              "ToolTip": "C:\\Users\\misha\\OneDrive\\Desktop\\VaultMM\\server\\VaultMM\\VaultMM.Server\\Program.cs",
+              "RelativeToolTip": "VaultMM.Server\\Program.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAB0AAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-09-19T12:35:26.847Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Bookmark",
+              "Name": "ST:0:0:{1c4feeaa-4718-4aa9-859d-94ce25d182ba}"
             }
           ]
         }
