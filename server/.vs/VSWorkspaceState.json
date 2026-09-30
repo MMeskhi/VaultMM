@@ -2,8 +2,10 @@
   "ExpandedNodes": [
     "",
     "\\VaultMM",
-    "\\VaultMM\\VaultMM.Server"
+    "\\VaultMM\\VaultMM.Server",
+    "\\VaultMM\\VaultMM.Server\\Controllers",
+    "\\VaultMM\\VaultMM.Server\\DTOs"
   ],
-  "SelectedNode": "\\VaultMM\\VaultMM.Server\\Program.cs",
+  "SelectedNode": "\\VaultMM\\VaultMM.Server\\Controllers\\VaultItemController.cs",
   "PreviewInSolutionExplorer": false
 }

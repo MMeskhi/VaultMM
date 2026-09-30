@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using VaultMM.Server.Data;
+using VaultMM.Server.DTOs;
 
 namespace VaultMM.Server.Controllers
 {
@@ -39,8 +40,23 @@ namespace VaultMM.Server.Controllers
 
         // POST: api/vaultitem
         [HttpPost]
-        public async Task<ActionResult<VaultItem>> Create(VaultItem item)
+        public async Task<ActionResult<VaultItem>> Create(CreateVaultItemRequest request)
         {
+            var vaultExists = await _context.Vaults
+                .AnyAsync(vault => vault.Id == request.VaultId);
+
+            if (!vaultExists)
+            {
+                return BadRequest("The specified vault does not exist.");
+            }
+
+            var item = new VaultItem
+            {
+                Title = request.Title.Trim(),
+                Description = request.Description?.Trim(),
+                VaultId = request.VaultId
+            };
+
             _context.VaultItems.Add(item);
             await _context.SaveChangesAsync();
 
