@@ -1,79 +1,142 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using System.Security.Claims;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using VaultMM.Server.Data;
 
-namespace VaultMM.Server.Controllers
+namespace VaultMM.Server.Controllers;
+
+[Authorize]
+[ApiController]
+[Route("api/[controller]")]
+public class TagController(VaultDbContext context) : ControllerBase
 {
-    [ApiController]
-    [Route("api/[controller]")]
-    public class TagController(VaultDbContext context) : ControllerBase
+    public class CreateTagRequest
     {
-        private readonly VaultDbContext _context = context;
+        public int VaultId { get; set; }
+        public string Name { get; set; } = "";
+    }
 
-        // GET: api/tag?vaultId=id
-        [HttpGet]
-        public async Task<ActionResult<IEnumerable<Tag>>> GetAll([FromQuery] int vaultId)
+    public class UpdateTagRequest
+    {
+        public string Name { get; set; } = "";
+    }
+
+    private IQueryable<Vault> MyVaults()
+    {
+        var googleId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+        return context.Vaults.Where(vault =>
+            googleId != null &&
+            vault.User != null &&
+            vault.User.GoogleId == googleId);
+    }
+
+    private IQueryable<Tag> MyTags()
+    {
+        var vaultIds = MyVaults().Select(vault => vault.Id);
+
+        return context.Tags.Where(tag =>
+            vaultIds.Contains(tag.VaultId));
+    }
+
+    [HttpGet]
+    public async Task<IActionResult> GetAll([FromQuery] int vaultId)
+    {
+        if (!await MyVaults().AnyAsync(vault => vault.Id == vaultId))
+            return NotFound();
+
+        var tags = await MyTags()
+            .Where(tag => tag.VaultId == vaultId)
+            .Select(tag => new
+            {
+                id = tag.Id,
+                vaultId = tag.VaultId,
+                name = tag.Name
+            })
+            .ToListAsync();
+
+        return Ok(tags);
+    }
+
+    [HttpGet("{id}")]
+    public async Task<IActionResult> GetById(int id)
+    {
+        var tag = await MyTags()
+            .Where(tag => tag.Id == id)
+            .Select(tag => new
+            {
+                id = tag.Id,
+                vaultId = tag.VaultId,
+                name = tag.Name
+            })
+            .SingleOrDefaultAsync();
+
+        if (tag is null)
+            return NotFound();
+
+        return Ok(tag);
+    }
+
+    [HttpPost]
+    public async Task<IActionResult> Create(CreateTagRequest request)
+    {
+        if (!await MyVaults().AnyAsync(vault => vault.Id == request.VaultId))
+            return NotFound();
+
+        if (string.IsNullOrWhiteSpace(request.Name))
+            return BadRequest("Tag name is required.");
+
+        var tag = new Tag
         {
-            var tags = await _context.Tags
-                .Where(t => t.VaultId == vaultId)
-                .ToListAsync();
+            VaultId = request.VaultId,
+            Name = request.Name.Trim()
+        };
 
-            return Ok(tags);
-        }
+        context.Tags.Add(tag);
+        await context.SaveChangesAsync();
 
-        // GET: api/tag/id
-        [HttpGet("{id}")]
-        public async Task<ActionResult<Tag>> GetById(int id)
+        return CreatedAtAction(nameof(GetById), new { id = tag.Id }, new
         {
-            var tag = await _context.Tags
-                .Include(t => t.Items)
-                .FirstOrDefaultAsync(t => t.Id == id);
+            id = tag.Id,
+            vaultId = tag.VaultId,
+            name = tag.Name
+        });
+    }
 
-            if (tag == null)
-                return NotFound();
+    [HttpPut("{id}")]
+    public async Task<IActionResult> Update(int id, UpdateTagRequest request)
+    {
+        var tag = await MyTags()
+            .SingleOrDefaultAsync(tag => tag.Id == id);
 
-            return Ok(tag);
-        }
+        if (tag is null)
+            return NotFound();
 
-        // POST: api/tag
-        [HttpPost]
-        public async Task<ActionResult<Tag>> Create(Tag tag)
-        {
-            _context.Tags.Add(tag);
-            await _context.SaveChangesAsync();
+        if (string.IsNullOrWhiteSpace(request.Name))
+            return BadRequest("Tag name is required.");
 
-            return CreatedAtAction(nameof(GetById), new { id = tag.Id }, tag);
-        }
+        tag.Name = request.Name.Trim();
 
-        // PUT: api/tag/id
-        [HttpPut("{id}")]
-        public async Task<IActionResult> Update(int id, Tag updatedTag)
-        {
-            if (id != updatedTag.Id)
-                return BadRequest();
+        await context.SaveChangesAsync();
+        return NoContent();
+    }
 
-            var existing = await _context.Tags.FindAsync(id);
-            if (existing == null)
-                return NotFound();
+    [HttpDelete("{id}")]
+    public async Task<IActionResult> Delete(int id)
+    {
+        var tag = await MyTags()
+            .Include(tag => tag.Items)
+            .SingleOrDefaultAsync(tag => tag.Id == id);
 
-            existing.Name = updatedTag.Name;
+        if (tag is null)
+            return NotFound();
 
-            await _context.SaveChangesAsync();
-            return NoContent();
-        }
+        // Remove tag assignments while preserving the items.
+        tag.Items.Clear();
+        context.Tags.Remove(tag);
 
-        // DELETE: api/tag/id
-        [HttpDelete("{id}")]
-        public async Task<IActionResult> Delete(int id)
-        {
-            var tag = await _context.Tags.FindAsync(id);
-            if (tag == null)
-                return NotFound();
-
-            _context.Tags.Remove(tag);
-            await _context.SaveChangesAsync();
-
-            return NoContent();
-        }
+        await context.SaveChangesAsync();
+        return NoContent();
     }
 }

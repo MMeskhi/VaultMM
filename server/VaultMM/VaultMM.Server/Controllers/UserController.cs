@@ -1,29 +1,37 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using System.Security.Claims;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using VaultMM.Server.Data;
 
-namespace VaultMM.Server.Controllers
+namespace VaultMM.Server.Controllers;
+
+[Authorize]
+[ApiController]
+[Route("api/[controller]")]
+public class UserController(VaultDbContext context) : ControllerBase
 {
-    [ApiController]
-    [Route("api/[controller]")]
-    public class UserController(VaultDbContext context) : ControllerBase
+    [HttpGet("{id}")]
+    public async Task<IActionResult> GetById(int id)
     {
-        private readonly VaultDbContext _context = context;
+        var googleId = User.FindFirstValue(ClaimTypes.NameIdentifier);
 
-        [HttpPost]
-        public async Task<ActionResult<User>> Create(User user)
-        {
-            _context.Users.Add(user);
-            await _context.SaveChangesAsync();
-            return CreatedAtAction(nameof(GetById), new { id = user.Id }, user);
-        }
+        if (string.IsNullOrWhiteSpace(googleId))
+            return Unauthorized();
 
-        [HttpGet("{id}")]
-        public async Task<ActionResult<User>> GetById(int id)
-        {
-            var user = await _context.Users.FindAsync(id);
-            if (user == null) return NotFound();
-            return Ok(user);
-        }
+        var user = await context.Users
+            .Where(user => user.Id == id && user.GoogleId == googleId)
+            .Select(user => new
+            {
+                id = user.Id,
+                email = user.Email,
+                displayName = user.DisplayName
+            })
+            .SingleOrDefaultAsync();
+
+        if (user is null)
+            return NotFound();
+
+        return Ok(user);
     }
 }

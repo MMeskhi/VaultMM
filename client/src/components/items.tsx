@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 
-function App() {
+function Items({ vaultId }: { vaultId: number }) {
   const [items, setItems] = useState([]);
   const [error, setError] = useState(null);
 
@@ -10,14 +10,16 @@ function App() {
   const [saveError, setSaveError] = useState(null);
 
   useEffect(() => {
-    fetch("http://localhost:5297/api/vaultitem?vaultId=1")
+    fetch(`https://localhost:7213/api/vaultitem?vaultId=${vaultId}`, {
+      credentials: "include",
+    })
       .then((res) => {
         if (!res.ok) throw new Error(`Request failed: ${res.status}`);
         return res.json();
       })
       .then((data) => setItems(data))
       .catch((err) => setError(err.message));
-  }, []);
+  }, [vaultId]);
 
   if (error) return <p>Error: {error}</p>;
 
@@ -30,7 +32,8 @@ function App() {
     setSaveError(null);
 
     try {
-      const response = await fetch("http://localhost:5297/api/vaultitem", {
+      const response = await fetch("https://localhost:7213/api/vaultitem", {
+        credentials: "include",
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -38,7 +41,7 @@ function App() {
         body: JSON.stringify({
           title: title.trim(),
           description: description.trim(),
-          vaultId: 1,
+          vaultId: vaultId,
         }),
       });
 
@@ -61,6 +64,7 @@ function App() {
   return (
     <div>
       <h1>My Vault Items</h1>
+
       <ul>
         {items.map((item) => (
           <li key={item.id}>
@@ -68,7 +72,6 @@ function App() {
           </li>
         ))}
       </ul>
-
       <form onSubmit={handleSubmit} style={{ marginTop: "24px" }}>
         <input
           placeholder="Title"
@@ -93,4 +96,4 @@ function App() {
   );
 }
 
-export default App;
+export default Items;

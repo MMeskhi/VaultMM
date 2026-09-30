@@ -1,81 +1,211 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using System.Security.Claims;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using VaultMM.Server.Data;
 
-namespace VaultMM.Server.Controllers
+namespace VaultMM.Server.Controllers;
+
+[Authorize]
+[ApiController]
+[Route("api/[controller]")]
+public class FolderController(VaultDbContext context) : ControllerBase
 {
-    [ApiController]
-    [Route("api/[controller]")]
-    public class FolderController(VaultDbContext context) : ControllerBase
+    public class CreateFolderRequest
     {
-        private readonly VaultDbContext _context = context;
+        public int VaultId { get; set; }
+        public string Name { get; set; } = "";
+        public int? ParentFolderId { get; set; }
+    }
 
-        // GET: api/folder?vaultId=id
-        [HttpGet]
-        public async Task<ActionResult<IEnumerable<Folder>>> GetAll([FromQuery] int vaultId)
+    public class UpdateFolderRequest
+    {
+        public string Name { get; set; } = "";
+        public int? ParentFolderId { get; set; }
+    }
+
+    private IQueryable<Vault> MyVaults()
+    {
+        var googleId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+        return context.Vaults.Where(vault =>
+            googleId != null &&
+            vault.User != null &&
+            vault.User.GoogleId == googleId);
+    }
+
+    private IQueryable<Folder> MyFolders()
+    {
+        var vaultIds = MyVaults().Select(vault => vault.Id);
+
+        return context.Folders.Where(folder =>
+            vaultIds.Contains(folder.VaultId));
+    }
+
+    private async Task<bool> IsValidParent(
+        int vaultId, int? parentId, int? folderId = null)
+    {
+        var visited = new HashSet<int>();
+
+        while (parentId is int currentId)
         {
-            var folders = await _context.Folders
-                .Where(f => f.VaultId == vaultId)
-                .ToListAsync();
+            // Reject self-parenting, descendants, and existing cycles.
+            if (currentId == folderId || !visited.Add(currentId))
+                return false;
 
-            return Ok(folders);
+            var parent = await MyFolders()
+                .Where(folder =>
+                    folder.Id == currentId &&
+                    folder.VaultId == vaultId)
+                .Select(folder => new { folder.ParentFolderId })
+                .SingleOrDefaultAsync();
+
+            if (parent is null)
+                return false;
+
+            parentId = parent.ParentFolderId;
         }
 
-        // GET: api/folder/id
-        [HttpGet("{id}")]
-        public async Task<ActionResult<Folder>> GetById(int id)
+        return true;
+    }
+
+    [HttpGet]
+    public async Task<IActionResult> GetAll([FromQuery] int vaultId)
+    {
+        if (!await MyVaults().AnyAsync(vault => vault.Id == vaultId))
+            return NotFound();
+
+        var folders = await MyFolders()
+            .Where(folder => folder.VaultId == vaultId)
+            .Select(folder => new
+            {
+                id = folder.Id,
+                vaultId = folder.VaultId,
+                name = folder.Name,
+                parentFolderId = folder.ParentFolderId
+            })
+            .ToListAsync();
+
+        return Ok(folders);
+    }
+
+    [HttpGet("{id}")]
+    public async Task<IActionResult> GetById(int id)
+    {
+        var folder = await MyFolders()
+            .Where(folder => folder.Id == id)
+            .Select(folder => new
+            {
+                id = folder.Id,
+                vaultId = folder.VaultId,
+                name = folder.Name,
+                parentFolderId = folder.ParentFolderId
+            })
+            .SingleOrDefaultAsync();
+
+        if (folder is null)
+            return NotFound();
+
+        return Ok(folder);
+    }
+
+    [HttpPost]
+    public async Task<IActionResult> Create(CreateFolderRequest request)
+    {
+        if (!await MyVaults().AnyAsync(vault => vault.Id == request.VaultId))
+            return NotFound();
+
+        if (string.IsNullOrWhiteSpace(request.Name))
+            return BadRequest("Folder name is required.");
+
+        await using var transaction =
+            await context.Database.BeginTransactionAsync();
+
+        if (!await IsValidParent(request.VaultId, request.ParentFolderId))
+            return BadRequest("Parent folder must belong to this vault.");
+
+        var folder = new Folder
         {
-            var folder = await _context.Folders
-                .Include(f => f.SubFolders)
-                .Include(f => f.Items)
-                .FirstOrDefaultAsync(f => f.Id == id);
+            VaultId = request.VaultId,
+            Name = request.Name.Trim(),
+            ParentFolderId = request.ParentFolderId
+        };
 
-            if (folder == null)
-                return NotFound();
+        context.Folders.Add(folder);
+        await context.SaveChangesAsync();
+        await transaction.CommitAsync();
 
-            return Ok(folder);
+        return CreatedAtAction(nameof(GetById), new { id = folder.Id }, new
+        {
+            id = folder.Id,
+            vaultId = folder.VaultId,
+            name = folder.Name,
+            parentFolderId = folder.ParentFolderId
+        });
+    }
+
+    [HttpPut("{id}")]
+    public async Task<IActionResult> Update(
+        int id, UpdateFolderRequest request)
+    {
+        await using var transaction =
+            await context.Database.BeginTransactionAsync();
+
+        var folder = await MyFolders()
+            .SingleOrDefaultAsync(folder => folder.Id == id);
+
+        if (folder is null)
+            return NotFound();
+
+        if (string.IsNullOrWhiteSpace(request.Name))
+            return BadRequest("Folder name is required.");
+
+        if (!await IsValidParent(
+            folder.VaultId, request.ParentFolderId, folder.Id))
+        {
+            return BadRequest(
+                "Parent must belong to this vault and cannot create a cycle.");
         }
 
-        // POST: api/folder
-        [HttpPost]
-        public async Task<ActionResult<Folder>> Create(Folder folder)
-        {
-            _context.Folders.Add(folder);
-            await _context.SaveChangesAsync();
+        folder.Name = request.Name.Trim();
+        folder.ParentFolderId = request.ParentFolderId;
 
-            return CreatedAtAction(nameof(GetById), new { id = folder.Id }, folder);
+        await context.SaveChangesAsync();
+        await transaction.CommitAsync();
+
+        return NoContent();
+    }
+
+    [HttpDelete("{id}")]
+    public async Task<IActionResult> Delete(int id)
+    {
+        await using var transaction =
+            await context.Database.BeginTransactionAsync();
+
+        var folder = await MyFolders()
+            .SingleOrDefaultAsync(folder => folder.Id == id);
+
+        if (folder is null)
+            return NotFound();
+
+        if (await context.Folders.AnyAsync(
+            child => child.ParentFolderId == id))
+        {
+            return Conflict("Move or delete this folder's subfolders first.");
         }
 
-        // PUT: api/folder/id
-        [HttpPut("{id}")]
-        public async Task<IActionResult> Update(int id, Folder updatedFolder)
-        {
-            if (id != updatedFolder.Id)
-                return BadRequest();
+        // Preserve items by removing their folder assignment.
+        var items = await context.VaultItems
+            .Where(item => item.FolderId == id)
+            .ToListAsync();
 
-            var existing = await _context.Folders.FindAsync(id);
-            if (existing == null)
-                return NotFound();
+        foreach (var item in items)
+            item.FolderId = null;
 
-            existing.Name = updatedFolder.Name;
-            existing.ParentFolderId = updatedFolder.ParentFolderId;
+        context.Folders.Remove(folder);
+        await context.SaveChangesAsync();
+        await transaction.CommitAsync();
 
-            await _context.SaveChangesAsync();
-            return NoContent();
-        }
-
-        // DELETE: api/folder/id
-        [HttpDelete("{id}")]
-        public async Task<IActionResult> Delete(int id)
-        {
-            var folder = await _context.Folders.FindAsync(id);
-            if (folder == null)
-                return NotFound();
-
-            _context.Folders.Remove(folder);
-            await _context.SaveChangesAsync();
-
-            return NoContent();
-        }
+        return NoContent();
     }
 }

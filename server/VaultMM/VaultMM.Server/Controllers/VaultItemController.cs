@@ -1,102 +1,140 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using System.Security.Claims;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using VaultMM.Server.Data;
 using VaultMM.Server.DTOs;
 
-namespace VaultMM.Server.Controllers
+namespace VaultMM.Server.Controllers;
+
+[Authorize]
+[ApiController]
+[Route("api/[controller]")]
+public class VaultItemController(VaultDbContext context) : ControllerBase
 {
-    [ApiController]
-    [Route("api/[controller]")]
-    public class VaultItemController(VaultDbContext context) : ControllerBase
+    private IQueryable<Vault> MyVaults()
     {
-        private readonly VaultDbContext _context = context;
+        var googleId = User.FindFirstValue(ClaimTypes.NameIdentifier);
 
+        return context.Vaults.Where(vault =>
+            googleId != null &&
+            vault.User != null &&
+            vault.User.GoogleId == googleId);
+    }
 
-        // GET: api/vaultitem?vaultId=id
-        [HttpGet]
-        public async Task<ActionResult<IEnumerable<VaultItem>>> GetAll([FromQuery] int vaultId)
+    private IQueryable<VaultItem> MyItems()
+    {
+        var vaultIds = MyVaults().Select(vault => vault.Id);
+
+        return context.VaultItems.Where(item =>
+            vaultIds.Contains(item.VaultId));
+    }
+
+    [HttpGet]
+    public async Task<ActionResult<IEnumerable<VaultItem>>> GetAll(
+        [FromQuery] int vaultId)
+    {
+        if (!await MyVaults().AnyAsync(vault => vault.Id == vaultId))
+            return NotFound();
+
+        var items = await MyItems()
+            .Where(item => item.VaultId == vaultId)
+            .Include(item => item.Tags)
+            .ToListAsync();
+
+        return Ok(items);
+    }
+
+    [HttpGet("{id}")]
+    public async Task<ActionResult<VaultItem>> GetById(int id)
+    {
+        var item = await MyItems()
+            .Include(item => item.Tags)
+            .FirstOrDefaultAsync(item => item.Id == id);
+
+        if (item is null)
+            return NotFound();
+
+        return Ok(item);
+    }
+
+    [HttpPost]
+    public async Task<ActionResult<VaultItem>> Create(
+        CreateVaultItemRequest request)
+    {
+        if (!await MyVaults().AnyAsync(vault => vault.Id == request.VaultId))
+            return NotFound();
+
+        if (string.IsNullOrWhiteSpace(request.Title))
+            return BadRequest("Title is required.");
+
+        var item = new VaultItem
         {
-            var items = await _context.VaultItems
-                .Where(i => i.VaultId == vaultId)
-                .Include(i => i.Tags)
-                .ToListAsync();
+            Title = request.Title.Trim(),
+            Description = request.Description?.Trim(),
+            VaultId = request.VaultId
+        };
 
-            return Ok(items);
+        context.VaultItems.Add(item);
+        await context.SaveChangesAsync();
+
+        return CreatedAtAction(nameof(GetById), new { id = item.Id }, item);
+    }
+
+    [HttpPut("{id}")]
+    public async Task<IActionResult> Update(int id, VaultItem updatedItem)
+    {
+        if (id != updatedItem.Id)
+            return BadRequest();
+
+        var existing = await MyItems()
+            .FirstOrDefaultAsync(item => item.Id == id);
+
+        if (existing is null)
+            return NotFound();
+
+        if (string.IsNullOrWhiteSpace(updatedItem.Title))
+            return BadRequest("Title is required.");
+
+        if (updatedItem.FolderId is int folderId &&
+            !await context.Folders.AnyAsync(folder =>
+                folder.Id == folderId &&
+                folder.VaultId == existing.VaultId))
+        {
+            return BadRequest("Folder must belong to this vault.");
         }
 
-        // GET: api/vaultitem/id
-        [HttpGet("{id}")]
-        public async Task<ActionResult<VaultItem>> GetById(int id)
+        if (updatedItem.CategoryId is int categoryId &&
+            !await context.Categories.AnyAsync(category =>
+                category.Id == categoryId &&
+                category.VaultId == existing.VaultId))
         {
-            var item = await _context.VaultItems
-                .Include(i => i.Tags)
-                .FirstOrDefaultAsync(i => i.Id == id);
-
-            if (item == null)
-                return NotFound();
-
-            return Ok(item);
+            return BadRequest("Category must belong to this vault.");
         }
 
-        // POST: api/vaultitem
-        [HttpPost]
-        public async Task<ActionResult<VaultItem>> Create(CreateVaultItemRequest request)
-        {
-            var vaultExists = await _context.Vaults
-                .AnyAsync(vault => vault.Id == request.VaultId);
+        existing.Title = updatedItem.Title.Trim();
+        existing.Description = updatedItem.Description?.Trim();
+        existing.Url = updatedItem.Url;
+        existing.ImageUrl = updatedItem.ImageUrl;
+        existing.FolderId = updatedItem.FolderId;
+        existing.CategoryId = updatedItem.CategoryId;
 
-            if (!vaultExists)
-            {
-                return BadRequest("The specified vault does not exist.");
-            }
+        await context.SaveChangesAsync();
+        return NoContent();
+    }
 
-            var item = new VaultItem
-            {
-                Title = request.Title.Trim(),
-                Description = request.Description?.Trim(),
-                VaultId = request.VaultId
-            };
+    [HttpDelete("{id}")]
+    public async Task<IActionResult> Delete(int id)
+    {
+        var item = await MyItems()
+            .FirstOrDefaultAsync(item => item.Id == id);
 
-            _context.VaultItems.Add(item);
-            await _context.SaveChangesAsync();
+        if (item is null)
+            return NotFound();
 
-            return CreatedAtAction(nameof(GetById), new { id = item.Id }, item);
-        }
+        context.VaultItems.Remove(item);
+        await context.SaveChangesAsync();
 
-        // PUT: api/vaultitem/id
-        [HttpPut("{id}")]
-        public async Task<IActionResult> Update(int id, VaultItem updatedItem)
-        {
-            if (id != updatedItem.Id)
-                return BadRequest();
-
-            var existing = await _context.VaultItems.FindAsync(id);
-            if (existing == null)
-                return NotFound();
-
-            existing.Title = updatedItem.Title;
-            existing.Description = updatedItem.Description;
-            existing.Url = updatedItem.Url;
-            existing.ImageUrl = updatedItem.ImageUrl;
-            existing.FolderId = updatedItem.FolderId;
-            existing.CategoryId = updatedItem.CategoryId;
-
-            await _context.SaveChangesAsync();
-            return NoContent();
-        }
-
-        // DELETE: api/vaultitem/id
-        [HttpDelete("{id}")]
-        public async Task<IActionResult> Delete(int id)
-        {
-            var item = await _context.VaultItems.FindAsync(id);
-            if (item == null)
-                return NotFound();
-
-            _context.VaultItems.Remove(item);
-            await _context.SaveChangesAsync();
-
-            return NoContent();
-        }
+        return NoContent();
     }
 }

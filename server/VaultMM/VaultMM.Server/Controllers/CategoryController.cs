@@ -1,79 +1,148 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using System.Security.Claims;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using VaultMM.Server.Data;
 
-namespace VaultMM.Server.Controllers
+namespace VaultMM.Server.Controllers;
+
+[Authorize]
+[ApiController]
+[Route("api/[controller]")]
+public class CategoryController(VaultDbContext context) : ControllerBase
 {
-    [ApiController]
-    [Route("api/[controller]")]
-    public class CategoryController(VaultDbContext context) : ControllerBase
+    public class CreateCategoryRequest
     {
-        private readonly VaultDbContext _context = context;
+        public int VaultId { get; set; }
+        public string Name { get; set; } = "";
+    }
 
-        // GET: api/category?vaultId=id
-        [HttpGet]
-        public async Task<ActionResult<IEnumerable<Category>>> GetAll([FromQuery] int vaultId)
+    public class UpdateCategoryRequest
+    {
+        public string Name { get; set; } = "";
+    }
+
+    private IQueryable<Vault> MyVaults()
+    {
+        var googleId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+        return context.Vaults.Where(vault =>
+            googleId != null &&
+            vault.User != null &&
+            vault.User.GoogleId == googleId);
+    }
+
+    private IQueryable<Category> MyCategories()
+    {
+        var vaultIds = MyVaults().Select(vault => vault.Id);
+
+        return context.Categories.Where(category =>
+            vaultIds.Contains(category.VaultId));
+    }
+
+    [HttpGet]
+    public async Task<IActionResult> GetAll([FromQuery] int vaultId)
+    {
+        if (!await MyVaults().AnyAsync(vault => vault.Id == vaultId))
+            return NotFound();
+
+        var categories = await MyCategories()
+            .Where(category => category.VaultId == vaultId)
+            .Select(category => new
+            {
+                id = category.Id,
+                vaultId = category.VaultId,
+                name = category.Name
+            })
+            .ToListAsync();
+
+        return Ok(categories);
+    }
+
+    [HttpGet("{id}")]
+    public async Task<IActionResult> GetById(int id)
+    {
+        var category = await MyCategories()
+            .Where(category => category.Id == id)
+            .Select(category => new
+            {
+                id = category.Id,
+                vaultId = category.VaultId,
+                name = category.Name
+            })
+            .SingleOrDefaultAsync();
+
+        if (category is null)
+            return NotFound();
+
+        return Ok(category);
+    }
+
+    [HttpPost]
+    public async Task<IActionResult> Create(CreateCategoryRequest request)
+    {
+        if (!await MyVaults().AnyAsync(vault => vault.Id == request.VaultId))
+            return NotFound();
+
+        if (string.IsNullOrWhiteSpace(request.Name))
+            return BadRequest("Category name is required.");
+
+        var category = new Category
         {
-            var categories = await _context.Categories
-                .Where(c => c.VaultId == vaultId)
-                .ToListAsync();
+            VaultId = request.VaultId,
+            Name = request.Name.Trim()
+        };
 
-            return Ok(categories);
-        }
+        context.Categories.Add(category);
+        await context.SaveChangesAsync();
 
-        // GET: api/category/5
-        [HttpGet("{id}")]
-        public async Task<ActionResult<Category>> GetById(int id)
+        return CreatedAtAction(nameof(GetById), new { id = category.Id }, new
         {
-            var category = await _context.Categories
-                .Include(c => c.Items)
-                .FirstOrDefaultAsync(c => c.Id == id);
+            id = category.Id,
+            vaultId = category.VaultId,
+            name = category.Name
+        });
+    }
 
-            if (category == null)
-                return NotFound();
+    [HttpPut("{id}")]
+    public async Task<IActionResult> Update(
+        int id, UpdateCategoryRequest request)
+    {
+        var category = await MyCategories()
+            .SingleOrDefaultAsync(category => category.Id == id);
 
-            return Ok(category);
-        }
+        if (category is null)
+            return NotFound();
 
-        // POST: api/category
-        [HttpPost]
-        public async Task<ActionResult<Category>> Create(Category category)
-        {
-            _context.Categories.Add(category);
-            await _context.SaveChangesAsync();
+        if (string.IsNullOrWhiteSpace(request.Name))
+            return BadRequest("Category name is required.");
 
-            return CreatedAtAction(nameof(GetById), new { id = category.Id }, category);
-        }
+        category.Name = request.Name.Trim();
 
-        // PUT: api/category/id
-        [HttpPut("{id}")]
-        public async Task<IActionResult> Update(int id, Category updatedCategory)
-        {
-            if (id != updatedCategory.Id)
-                return BadRequest();
+        await context.SaveChangesAsync();
+        return NoContent();
+    }
 
-            var existing = await _context.Categories.FindAsync(id);
-            if (existing == null)
-                return NotFound();
+    [HttpDelete("{id}")]
+    public async Task<IActionResult> Delete(int id)
+    {
+        var category = await MyCategories()
+            .SingleOrDefaultAsync(category => category.Id == id);
 
-            existing.Name = updatedCategory.Name;
+        if (category is null)
+            return NotFound();
 
-            await _context.SaveChangesAsync();
-            return NoContent();
-        }
+        // Keep the items, but remove their category assignment.
+        var items = await context.VaultItems
+            .Where(item => item.CategoryId == id)
+            .ToListAsync();
 
-        // DELETE: api/category/id
-        [HttpDelete("{id}")]
-        public async Task<IActionResult> Delete(int id)
-        {
-            var category = await _context.Categories.FindAsync(id);
-            if (category == null)
-                return NotFound();
+        foreach (var item in items)
+            item.CategoryId = null;
 
-            _context.Categories.Remove(category);
-            await _context.SaveChangesAsync();
+        context.Categories.Remove(category);
+        await context.SaveChangesAsync();
 
-            return NoContent();
-        }
+        return NoContent();
     }
 }
