@@ -3,6 +3,10 @@
   "WorkspaceRootPath": "C:\\Users\\misha\\Desktop\\VaultMM\\server\\VaultMM\\VaultMM.Server\\",
   "Documents": [
     {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\misha\\Desktop\\VaultMM\\server\\VaultMM\\VaultMM.Server\\Controllers\\CategoryController.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:Controllers\\CategoryController.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
       "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\misha\\Desktop\\VaultMM\\server\\VaultMM\\VaultMM.Server\\Controllers\\AuthController.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:Controllers\\AuthController.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
@@ -13,10 +17,6 @@
     {
       "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\misha\\Desktop\\VaultMM\\server\\VaultMM\\VaultMM.Server\\Controllers\\TagController.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:Controllers\\TagController.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\misha\\Desktop\\VaultMM\\server\\VaultMM\\VaultMM.Server\\Controllers\\CategoryController.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:Controllers\\CategoryController.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
       "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\misha\\Desktop\\VaultMM\\server\\VaultMM\\VaultMM.Server\\Controllers\\VaultController.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
@@ -42,7 +42,7 @@
       "DocumentGroups": [
         {
           "DockedWidth": 200,
-          "SelectedChildIndex": 7,
+          "SelectedChildIndex": 3,
           "Children": [
             {
               "$type": "Bookmark",
@@ -50,7 +50,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 1,
+              "DocumentIndex": 2,
               "Title": "FolderController.cs",
               "DocumentMoniker": "C:\\Users\\misha\\Desktop\\VaultMM\\server\\VaultMM\\VaultMM.Server\\Controllers\\FolderController.cs",
               "RelativeDocumentMoniker": "Controllers\\FolderController.cs",
@@ -58,12 +58,11 @@
               "RelativeToolTip": "Controllers\\FolderController.cs",
               "ViewState": "AgIAAKUAAAAAAAAAAAAcwNIAAAABAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-09-30T17:36:37.538Z",
-              "EditorCaption": ""
+              "WhenOpened": "2026-09-30T17:36:37.538Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 2,
+              "DocumentIndex": 3,
               "Title": "TagController.cs",
               "DocumentMoniker": "C:\\Users\\misha\\Desktop\\VaultMM\\server\\VaultMM\\VaultMM.Server\\Controllers\\TagController.cs",
               "RelativeDocumentMoniker": "Controllers\\TagController.cs",
@@ -71,18 +70,17 @@
               "RelativeToolTip": "Controllers\\TagController.cs",
               "ViewState": "AgIAAHgAAAAAAAAAAAAcwI0AAAABAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-09-30T17:34:57.358Z",
-              "EditorCaption": ""
+              "WhenOpened": "2026-09-30T17:34:57.358Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 3,
+              "DocumentIndex": 0,
               "Title": "CategoryController.cs",
               "DocumentMoniker": "C:\\Users\\misha\\Desktop\\VaultMM\\server\\VaultMM\\VaultMM.Server\\Controllers\\CategoryController.cs",
               "RelativeDocumentMoniker": "Controllers\\CategoryController.cs",
               "ToolTip": "C:\\Users\\misha\\Desktop\\VaultMM\\server\\VaultMM\\VaultMM.Server\\Controllers\\CategoryController.cs",
               "RelativeToolTip": "Controllers\\CategoryController.cs",
-              "ViewState": "AgIAAGkAAAAAAAAAAAAcwJMAAAABAAAAAAAAAA==",
+              "ViewState": "AgIAAGkAAAAAAAAAAAAcwG0AAAAFAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2026-09-30T17:34:27.527Z",
               "EditorCaption": ""
@@ -97,8 +95,7 @@
               "RelativeToolTip": "Controllers\\VaultItemController.cs",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAAIsAAAABAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-09-30T17:27:17.431Z",
-              "EditorCaption": ""
+              "WhenOpened": "2026-09-30T17:27:17.431Z"
             },
             {
               "$type": "Document",
@@ -110,8 +107,7 @@
               "RelativeToolTip": "Controllers\\VaultController.cs",
               "ViewState": "AgIAAGMAAAAAAAAAAAAAAIIAAAABAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-09-30T17:19:33.292Z",
-              "EditorCaption": ""
+              "WhenOpened": "2026-09-30T17:19:33.292Z"
             },
             {
               "$type": "Document",
@@ -123,21 +119,19 @@
               "RelativeToolTip": "Controllers\\UserController.cs",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAACQAAAABAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-09-30T17:10:26.985Z",
-              "EditorCaption": ""
+              "WhenOpened": "2026-09-30T17:10:26.985Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 0,
+              "DocumentIndex": 1,
               "Title": "AuthController.cs",
               "DocumentMoniker": "C:\\Users\\misha\\Desktop\\VaultMM\\server\\VaultMM\\VaultMM.Server\\Controllers\\AuthController.cs",
               "RelativeDocumentMoniker": "Controllers\\AuthController.cs",
               "ToolTip": "C:\\Users\\misha\\Desktop\\VaultMM\\server\\VaultMM\\VaultMM.Server\\Controllers\\AuthController.cs",
               "RelativeToolTip": "Controllers\\AuthController.cs",
-              "ViewState": "AgIAABUAAAAAAAAAAAAAADIAAAAAAAAAAAAAAA==",
+              "ViewState": "AgIAABUAAAAAAAAAAAAAACAAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-09-30T14:49:15.106Z",
-              "EditorCaption": ""
+              "WhenOpened": "2026-09-30T14:49:15.106Z"
             },
             {
               "$type": "Document",
@@ -149,8 +143,7 @@
               "RelativeToolTip": "Program.cs",
               "ViewState": "AgIAADgAAAAAAAAAAAAcwFMAAAAtAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-09-30T14:45:09.221Z",
-              "EditorCaption": ""
+              "WhenOpened": "2026-09-30T14:45:09.221Z"
             }
           ]
         }

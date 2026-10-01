@@ -15,7 +15,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("VaultMM.Server")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Release")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+15102ce7cf7f32f109fcacbee9549a823d54afeb")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+9c2edc6c7e0404953df42c737d37871aae644a6e")]
 [assembly: System.Reflection.AssemblyProductAttribute("VaultMM.Server")]
 [assembly: System.Reflection.AssemblyTitleAttribute("VaultMM.Server")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

@@ -13,6 +13,19 @@ namespace VaultMM.Server.Controllers
     {
         private readonly VaultDbContext _context = context;
 
+        [HttpGet]
+        public async Task<IActionResult> GetAll()
+        {
+            var googleId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (string.IsNullOrWhiteSpace(googleId)) return Unauthorized();
+
+            return Ok(await _context.Vaults
+                .Where(vault => vault.User != null && vault.User.GoogleId == googleId)
+                .OrderBy(vault => vault.Id)
+                .Select(vault => new { id = vault.Id, name = vault.Name, description = vault.Description })
+                .ToListAsync());
+        }
+
         [HttpPost]
         public async Task<IActionResult> Create(CreateVaultRequest request)
         {
